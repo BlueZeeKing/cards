@@ -118,10 +118,3 @@ void Card::display(int row, int col) {
         break;
     }
 }
-
-char Card::to_binary() {
-    char value = 0; 
-    value |= rank & 0b1111;
-    value |= (suit << 4) & 0b11110000;
-    return value;
-}

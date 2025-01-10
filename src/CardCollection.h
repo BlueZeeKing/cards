@@ -22,6 +22,4 @@ struct CardCollection {
     void deal(CardCollection& that, int n);
     void deal_all(CardCollection& that);
     void display(int row, int col, int limit = -1, bool vertical = false);
-    vector<unsigned char> to_bytes();
-    void from_bytes(vector<unsigned char> data);
 };

@@ -12,12 +12,10 @@ struct Card
     // constructors
     Card();
     Card(int s, int r);
-    Card(char binary);
 
     // member functions
     string to_string() const;
     bool equals(const Card& c2) const;
     bool is_greater(const Card& c2) const;
     void display(int row, int col);
-    char to_binary(); 
 };

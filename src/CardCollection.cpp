@@ -107,21 +107,3 @@ void CardCollection::display(int row, int col, int limit, bool vertical)
         mvaddch(row, col-1, '+');
     }
 }
-
-vector<unsigned char> CardCollection::to_bytes() {
-    vector<unsigned char> data(1 + size());
-
-    data[0] = size();
-    for (int i = 0; i < size(); i++) {
-        data[i+1] = get_card(i).to_binary();
-    }
-
-    return data;
-}
-
-void CardCollection::from_bytes(vector<unsigned char> data) {
-    cards.clear();
-    for (int i = 0; i < data[0]; i++) {
-        add_card(Card(data[i+1]));
-    }
-}
