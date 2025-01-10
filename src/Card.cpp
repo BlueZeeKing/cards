@@ -14,11 +14,6 @@ Card::Card(int s, int r)
     suit = s; rank = r;
 }
 
-Card::Card(char binary) {
-    rank = binary & 0b1111;
-    suit = (binary >> 4) & 0b1111;
-}
-
 string Card::to_string() const
 {
     string rank_strings[] = {"", "Ace", "2", "3", "4", "5", "6", "7",
