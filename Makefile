@@ -1,5 +1,5 @@
 CC=g++
-STD=c++23
+STD=c++17
 
 build/main: build/main.o build/Hand.o build/Deck.o build/Card.o build/Player.o build/Eights.o build/randomutils.o build/CardCollection.o
 	$(CC) -o $@ $^ -std=$(STD) -lncursesw -ltinfo

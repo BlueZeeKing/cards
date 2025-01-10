@@ -2,8 +2,8 @@
 #include "Hand.h"
 #include "Card.h"
 #include "Player.h"
-#include <format>
 #include <ncurses.h>
+#include <sstream>
 #include "Deck.h"
 using namespace std;
 
@@ -63,7 +63,9 @@ void Eights::display_state()
     int center_row = getmaxy(stdscr) / 2;
     int center_col = getmaxx(stdscr) / 2;
     color_set(COLOR_CARD_BLACK, nullptr);
-    mvaddstr(center_row, center_col - 15, format("Draw pile: {} cards", draw_pile.size()).c_str());
+    stringstream message;
+    message << "Draw pile: " << draw_pile.size() << " cards";
+    mvaddstr(center_row, center_col - 15, message.str().c_str());
     discard_pile.last_card().display(center_row, center_col + 8);
 
     refresh();
