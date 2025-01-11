@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 #include "Card.h"
-#include "ncurses.h"
+#include "ncursesw/ncurses.h"
 using namespace std;
 
 Card::Card()

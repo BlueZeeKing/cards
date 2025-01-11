@@ -2,7 +2,7 @@
 #include "Hand.h"
 #include "Card.h"
 #include "Player.h"
-#include <ncurses.h>
+#include "ncursesw/ncurses.h"
 #include <sstream>
 #include "Deck.h"
 using namespace std;

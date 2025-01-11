@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <ncurses.h>
+#include "ncursesw/ncurses.h"
 #include <string>
 #include "CardCollection.h"
 #include "randomutils.h"

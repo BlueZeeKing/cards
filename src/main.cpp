@@ -1,6 +1,6 @@
 #include "Card.h"
 #include "Eights.h"
-#include <ncurses.h>
+#include "ncursesw/ncurses.h"
 #include "randomutils.h"
 using namespace std;
 

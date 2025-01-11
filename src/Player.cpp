@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "Hand.h"
 #include "Eights.h"
-#include <ncurses.h>
+#include "ncursesw/ncurses.h"
 using namespace std;
 
 Card Player::play(Eights& eights, const Card& prev)
