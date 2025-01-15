@@ -112,3 +112,20 @@ ostream &operator<<(ostream &stream, CardCollection &collection) {
     }
     return stream;
 }
+
+bool CardCollection::operator==(const CardCollection &other) const {
+    if (other.cards.size() != cards.size()) {
+        return false;
+    }
+
+    for (int i = 0; i < cards.size(); i++) {
+        if (other.cards[i] != cards[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+bool CardCollection::operator!=(const CardCollection &other) const {
+    return !(*this == other);
+}

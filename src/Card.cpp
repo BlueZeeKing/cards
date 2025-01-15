@@ -1,6 +1,5 @@
 #include "Card.h"
 #include "ncursesw/ncurses.h"
-#include <iostream>
 #include <string>
 using namespace std;
 
@@ -30,6 +29,8 @@ string Card::to_string() const {
 bool Card::operator==(const Card &c2) const {
     return (suit == c2.suit && rank == c2.rank);
 }
+
+bool Card::operator!=(const Card &c2) const { return !(*this == c2); }
 
 bool Card::is_greater(const Card &c2) const {
     // first check the suit_strings

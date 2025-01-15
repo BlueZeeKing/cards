@@ -23,6 +23,8 @@ struct CardCollection {
     void deal(CardCollection &that, int n);
     void deal_all(CardCollection &that);
     void display(int row, int col, int limit = -1, bool vertical = false);
+    bool operator==(const CardCollection &) const;
+    bool operator!=(const CardCollection &) const;
 };
 
 istream &operator>>(istream &, CardCollection &);

@@ -1,12 +1,13 @@
 #include "CardCollection.h"
 #include "Deck.h"
+#include "Hand.h"
 #include "randomutils.h"
-#include <bitset>
 #include <iostream>
 #include <sstream>
 #include <thread>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
+#include "messages.h"
 #include "socket.h"
 using namespace std;
 
@@ -76,8 +77,31 @@ TEST_CASE("Test deck serialization and deserialization") {
     CardCollection collection("output");
     stream >> collection;
 
-    CHECK(deck.size() == collection.size());
-    for (int i = 0; i < deck.size(); i++) {
-        CHECK(deck.get_card(i) == collection.get_card(i));
-    }
+    CHECK(deck == collection);
+}
+
+void test_message(Message message) {
+    stringstream stream;
+    stream << message;
+    Message output(Draw{});
+    stream >> output;
+    CHECK(message == output);
+}
+
+TEST_CASE("Test message serialization and deserialization") {
+    Deck deck("deck");
+    Hand hand("hand");
+    deck.deal(hand, 10);
+    vector<string> player_order = {"first", "second", "third"};
+
+    test_message(StartGame{
+        .hand = hand, .player_order = player_order, .discard = Card()});
+    test_message(AddCard{
+        .idx = 42,
+    });
+    test_message(FinishTurn{.idx = 4242, .new_discard = Card(1, 1)});
+    test_message(Draw{});
+    test_message(DrawResult{.card = Card(2, 4)});
+    test_message(Play{.card = Card(1, 10)});
+    test_message(Join{.name = "hello, world"});
 }
