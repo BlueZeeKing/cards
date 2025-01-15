@@ -1,16 +1,16 @@
 CC=g++
 STD=c++17
 
-build/main: build/main.o build/Hand.o build/Deck.o build/Card.o build/Player.o build/Eights.o build/randomutils.o build/CardCollection.o
+build/main: build/main.o build/Hand.o build/Deck.o build/Card.o build/Player.o build/Eights.o build/randomutils.o build/CardCollection.o build/socket.o
 	$(CC) -o $@ $^ -std=$(STD) -lncursesw 
 
-build/test: build/test.o 
+build/test: build/test.o build/socket.o
 	$(CC) -o $@ $^ -std=$(STD) -lncursesw
 
 build/%.o: src/%.cpp
 	@mkdir -p build
 	@$(CC) -MM -MT $@ $< > build/$*.d
-	$(CC) -c -o $@ $< -std=$(STD)
+	$(CC) -g -c -o $@ $< -std=$(STD)
 
 -include build/*.d
 
