@@ -14,6 +14,8 @@ Card::Card(int s, int r) {
     rank = r;
 }
 
+Card::Card(char byte) {}
+
 string Card::to_string() const {
     string rank_strings[] = {"",  "Ace", "2", "3",  "4",    "5",     "6",
                              "7", "8",   "9", "10", "Jack", "Queen", "King"};
@@ -22,7 +24,7 @@ string Card::to_string() const {
     return rank_strings[rank] + " of " + suit_strings[suit];
 }
 
-bool Card::equals(const Card &c2) const {
+bool Card::operator==(const Card &c2) const {
     return (suit == c2.suit && rank == c2.rank);
 }
 
@@ -114,3 +116,5 @@ void Card::display(int row, int col) {
         break;
     }
 }
+
+char Card::to_byte() const { return 0; }

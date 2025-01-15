@@ -1,3 +1,5 @@
+#include "Deck.h"
+#include <bitset>
 #include <iostream>
 #include <thread>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
@@ -53,4 +55,11 @@ TEST_CASE("Test tcp socket and server" * doctest::skip(true)) {
 
     client_thread.join();
     server_thread.join();
+}
+
+TEST_CASE("Test card serialization and deserialization") {
+    Deck deck("deck");
+    for (auto card = deck.cards.begin(); card < deck.cards.end(); card++) {
+        CHECK(Card(card->to_byte()) == *card);
+    }
 }
