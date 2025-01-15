@@ -14,7 +14,10 @@ Card::Card(int s, int r) {
     rank = r;
 }
 
-Card::Card(char byte) {}
+Card::Card(char byte) {
+    rank = byte >> 4 & 0b1111;
+    suit = byte & 0b1111;
+}
 
 string Card::to_string() const {
     string rank_strings[] = {"",  "Ace", "2", "3",  "4",    "5",     "6",
@@ -117,4 +120,4 @@ void Card::display(int row, int col) {
     }
 }
 
-char Card::to_byte() const { return 0; }
+char Card::to_byte() const { return rank << 4 | suit; }
