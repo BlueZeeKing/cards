@@ -3,6 +3,7 @@
 #include "Hand.h"
 #include "randomutils.h"
 #include <iostream>
+#include <istream>
 #include <sstream>
 #include <thread>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
@@ -80,28 +81,43 @@ TEST_CASE("Test deck serialization and deserialization") {
     CHECK(deck == collection);
 }
 
-void test_message(Message message) {
-    stringstream stream;
+void test_message(Message message, iostream &stream) {
     stream << message;
+    stream.sync();
     Message output(Draw{});
     stream >> output;
     CHECK(message == output);
 }
 
-TEST_CASE("Test message serialization and deserialization") {
+void test_all_messages(iostream &stream) {
     Deck deck("deck");
     Hand hand("hand");
     deck.deal(hand, 10);
     vector<string> player_order = {"first", "second", "third"};
 
-    test_message(StartGame{
-        .hand = hand, .player_order = player_order, .discard = Card()});
-    test_message(AddCard{
-        .idx = 42,
-    });
-    test_message(FinishTurn{.idx = 4242, .new_discard = Card(1, 1)});
-    test_message(Draw{});
-    test_message(DrawResult{.card = Card(2, 4)});
-    test_message(Play{.card = Card(1, 10)});
-    test_message(Join{.name = "hello, world"});
+    test_message(StartGame{.hand = hand,
+                           .player_order = player_order,
+                           .discard = Card()},
+                 stream);
+    test_message(
+        AddCard{
+            .idx = 42,
+        },
+        stream);
+    test_message(FinishTurn{.idx = 4242, .new_discard = Card(1, 1)}, stream);
+    test_message(Draw{}, stream);
+    test_message(DrawResult{.card = Card(2, 4)}, stream);
+    test_message(Play{.card = Card(1, 10)}, stream);
+    test_message(Join{.name = "hello, world"}, stream);
+}
+
+TEST_CASE("Test message serialization and deserialization") {
+    stringstream stream;
+    test_all_messages(stream);
+}
+
+TEST_CASE("Test message serialization and deserialization over network" *
+          doctest::skip(true)) {
+    tcp_stream stream("tcpbin.com", "4242");
+    test_all_messages(stream);
 }

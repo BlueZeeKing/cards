@@ -1,4 +1,5 @@
 #include "messages.h"
+#include <iostream>
 #include <string>
 
 istream &operator>>(istream &stream, Message &message) {
@@ -13,15 +14,16 @@ istream &operator>>(istream &stream, Message &message) {
         Hand hand("Mine");
         stream >> hand;
 
-        stream >> length;
+        std::getline(stream, line);
+        length = stoi(line);
         vector<string> players;
         for (int i = 0; i < length; i++) {
             std::getline(stream, line);
             players.push_back(line);
         }
 
-        stream >> byte;
-        Card discard(byte);
+        std::getline(stream, line);
+        Card discard(line[0]);
 
         message = StartGame{
             .hand = hand,
@@ -31,18 +33,18 @@ istream &operator>>(istream &stream, Message &message) {
         break;
     }
     case 1: {
-        int idx;
-        stream >> idx;
+        std::getline(stream, line);
+        int idx = stoi(line);
         message = AddCard{
             .idx = idx,
         };
         break;
     }
     case 2: {
-        int idx;
-        stream >> idx;
-        stream >> byte;
-        Card card(byte);
+        std::getline(stream, line);
+        int idx = stoi(line);
+        std::getline(stream, line);
+        Card card(line[0]);
         message = FinishTurn{
             .idx = idx,
             .new_discard = card,
@@ -53,16 +55,16 @@ istream &operator>>(istream &stream, Message &message) {
         message = Draw{};
         break;
     case 4: {
-        stream >> byte;
-        Card card(byte);
+        std::getline(stream, line);
+        Card card(line[0]);
         message = DrawResult{
             .card = card,
         };
         break;
     }
     case 5: {
-        stream >> byte;
-        Card card(byte);
+        std::getline(stream, line);
+        Card card(line[0]);
         message = Play{
             .card = card,
         };
@@ -86,7 +88,7 @@ ostream &operator<<(ostream &stream, Message &message) {
     case 0: {
         StartGame inner = get<StartGame>(message);
         stream << inner.hand;
-        stream << (int)inner.player_order.size();
+        stream << (int)inner.player_order.size() << '\n';
 
         vector<string> players;
         for (auto player = inner.player_order.begin();
@@ -94,30 +96,30 @@ ostream &operator<<(ostream &stream, Message &message) {
             stream << *player << '\n';
         }
 
-        stream << inner.discard.to_byte();
+        stream << inner.discard.to_byte() << '\n';
         break;
     }
     case 1: {
         AddCard inner = get<AddCard>(message);
-        stream << inner.idx;
+        stream << inner.idx << '\n';
         break;
     }
     case 2: {
         FinishTurn inner = get<FinishTurn>(message);
-        stream << inner.idx;
-        stream << inner.new_discard.to_byte();
+        stream << inner.idx << '\n';
+        stream << inner.new_discard.to_byte() << '\n';
         break;
     }
     case 3:
         break;
     case 4: {
         DrawResult inner = get<DrawResult>(message);
-        stream << inner.card.to_byte();
+        stream << inner.card.to_byte() << '\n';
         break;
     }
     case 5: {
         Play inner = get<Play>(message);
-        stream << inner.card.to_byte();
+        stream << inner.card.to_byte() << '\n';
         break;
     }
     case 6: {
