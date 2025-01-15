@@ -3,6 +3,7 @@
 #include <iostream>
 #include <netdb.h>
 #include <streambuf>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include "socket.h"
@@ -118,3 +119,46 @@ tcp_stream::tcp_stream(int socketfd)
 tcp_stream::tcp_stream(const std::string &url, const std::string &port)
     : std::iostream(new tcp_streambuffer(open_client_socket(url, port))) {};
 tcp_stream::~tcp_stream() { delete this->rdbuf(); };
+
+tcp_server::tcp_server(const std::string &url, const std::string &port) {
+    struct addrinfo hints, *result;
+
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_family = AF_INET;
+    hints.ai_flags = AI_NUMERICSERV;
+
+    int err = getaddrinfo(url.c_str(), port.c_str(), &hints, &result);
+    if (err != 0) {
+        throw strerror(err);
+    }
+
+    socketfd = socket(result->ai_family, result->ai_socktype, 0);
+    if (socketfd == -1) {
+        throw strerror(errno);
+    }
+
+    err = bind(socketfd, result->ai_addr, result->ai_addrlen);
+    if (err == -1) {
+        throw strerror(errno);
+    }
+
+    freeaddrinfo(result);
+
+    listen(socketfd, 5);
+}
+
+tcp_server::~tcp_server() {
+    if (close(socketfd) == -1) {
+        std::cerr << "Failed to close listener: " << strerror(errno)
+                  << std::endl;
+    }
+}
+
+tcp_stream tcp_server::accept() {
+    int new_socketfd = ::accept(socketfd, nullptr, nullptr);
+    if (new_socketfd == -1) {
+        throw strerror(errno);
+    }
+    return tcp_stream(new_socketfd);
+}

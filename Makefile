@@ -19,6 +19,9 @@ build/%.o: src/%.cpp
 test: build/test
 	./build/test
 
+test-all: build/test
+	./build/test --no-skip
+
 all: build/test build/main
 
 clean:
