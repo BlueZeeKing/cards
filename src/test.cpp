@@ -1,5 +1,6 @@
 #include "CardCollection.h"
 #include "Deck.h"
+#include "randomutils.h"
 #include <bitset>
 #include <iostream>
 #include <sstream>
@@ -67,6 +68,7 @@ TEST_CASE("Test card serialization and deserialization") {
 }
 
 TEST_CASE("Test deck serialization and deserialization") {
+    init_random_seed();
     Deck deck("deck");
     deck.shuffle();
     stringstream stream;

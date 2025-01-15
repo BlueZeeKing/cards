@@ -15,8 +15,8 @@ Card::Card(int s, int r) {
 }
 
 Card::Card(char byte) {
-    rank = byte >> 4 & 0b1111;
-    suit = byte & 0b1111;
+    rank = byte >> 2 & 0b1111;
+    suit = byte & 0b11;
 }
 
 string Card::to_string() const {
@@ -120,4 +120,4 @@ void Card::display(int row, int col) {
     }
 }
 
-char Card::to_byte() const { return rank << 4 | suit; }
+char Card::to_byte() const { return 0b10000000 | rank << 2 | suit; }

@@ -1,7 +1,8 @@
 #include "CardCollection.h"
 #include "ncursesw/ncurses.h"
 #include "randomutils.h"
-#include <algorithm>
+#include <iostream>
+#include <ostream>
 #include <string>
 
 CardCollection::CardCollection(string label) {
@@ -87,9 +88,27 @@ void CardCollection::display(int row, int col, int limit, bool vertical) {
 }
 
 istream &operator>>(istream &stream, CardCollection &collection) {
+    int length;
+    char byte;
+
+    stream >> length;
+    collection.cards.clear();
+    collection.cards.reserve(length);
+
+    for (int i = 0; i < length; i++) {
+        stream >> byte;
+        Card card(byte);
+        collection.add_card(card);
+    }
+
     return stream;
 }
 
 ostream &operator<<(ostream &stream, CardCollection &collection) {
+    stream << collection.size();
+    for (auto card = collection.cards.begin(); card < collection.cards.end();
+         card++) {
+        stream << card->to_byte();
+    }
     return stream;
 }
