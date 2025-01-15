@@ -1,4 +1,5 @@
 #include "messages.h"
+#include <cassert>
 #include <iostream>
 #include <string>
 
@@ -22,8 +23,9 @@ istream &operator>>(istream &stream, Message &message) {
             players.push_back(line);
         }
 
-        std::getline(stream, line);
-        Card discard(line[0]);
+        Card discard;
+        stream >> discard;
+        assert(stream.get() == '\n');
 
         message = StartGame{
             .hand = hand,
@@ -43,8 +45,9 @@ istream &operator>>(istream &stream, Message &message) {
     case 2: {
         std::getline(stream, line);
         int idx = stoi(line);
-        std::getline(stream, line);
-        Card card(line[0]);
+        Card card;
+        stream >> card;
+        assert(stream.get() == '\n');
         message = FinishTurn{
             .idx = idx,
             .new_discard = card,
@@ -55,16 +58,18 @@ istream &operator>>(istream &stream, Message &message) {
         message = Draw{};
         break;
     case 4: {
-        std::getline(stream, line);
-        Card card(line[0]);
+        Card card;
+        stream >> card;
+        assert(stream.get() == '\n');
         message = DrawResult{
             .card = card,
         };
         break;
     }
     case 5: {
-        std::getline(stream, line);
-        Card card(line[0]);
+        Card card;
+        stream >> card;
+        assert(stream.get() == '\n');
         message = Play{
             .card = card,
         };
@@ -96,7 +101,7 @@ ostream &operator<<(ostream &stream, Message &message) {
             stream << *player << '\n';
         }
 
-        stream << inner.discard.to_byte() << '\n';
+        stream << inner.discard << '\n';
         break;
     }
     case 1: {
@@ -107,19 +112,19 @@ ostream &operator<<(ostream &stream, Message &message) {
     case 2: {
         FinishTurn inner = get<FinishTurn>(message);
         stream << inner.idx << '\n';
-        stream << inner.new_discard.to_byte() << '\n';
+        stream << inner.new_discard << '\n';
         break;
     }
     case 3:
         break;
     case 4: {
         DrawResult inner = get<DrawResult>(message);
-        stream << inner.card.to_byte() << '\n';
+        stream << inner.card << '\n';
         break;
     }
     case 5: {
         Play inner = get<Play>(message);
-        stream << inner.card.to_byte() << '\n';
+        stream << inner.card << '\n';
         break;
     }
     case 6: {

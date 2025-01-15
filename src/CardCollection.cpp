@@ -90,15 +90,16 @@ void CardCollection::display(int row, int col, int limit, bool vertical) {
 istream &operator>>(istream &stream, CardCollection &collection) {
     int length;
     char byte;
-    string line;
+    Card card;
 
-    std::getline(stream, line);
     collection.cards.clear();
 
-    for (auto byte = line.begin(); byte < line.end(); byte++ ++) {
-        Card card(*byte);
+    while (stream.peek() != '\n') {
+        stream >> card;
         collection.add_card(card);
     }
+
+    stream.ignore();
 
     return stream;
 }
@@ -106,7 +107,7 @@ istream &operator>>(istream &stream, CardCollection &collection) {
 ostream &operator<<(ostream &stream, CardCollection &collection) {
     for (auto card = collection.cards.begin(); card < collection.cards.end();
          card++) {
-        stream << card->to_byte();
+        stream << *card;
     }
     stream << '\n';
     return stream;

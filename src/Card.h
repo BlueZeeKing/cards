@@ -11,7 +11,6 @@ struct Card {
     // constructors
     Card();
     Card(int s, int r);
-    Card(char byte);
 
     // member functions
     string to_string() const;
@@ -19,5 +18,7 @@ struct Card {
     bool operator!=(const Card &c2) const;
     bool is_greater(const Card &c2) const;
     void display(int row, int col);
-    char to_byte() const;
 };
+
+istream &operator>>(istream &, Card &);
+ostream &operator<<(ostream &, Card &);

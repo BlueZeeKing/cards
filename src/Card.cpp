@@ -1,21 +1,18 @@
 #include "Card.h"
 #include "ncursesw/ncurses.h"
+#include <istream>
+#include <ostream>
 #include <string>
 using namespace std;
 
 Card::Card() {
-    suit = 0;
-    rank = 0;
+    suit = 1;
+    rank = 1;
 }
 
 Card::Card(int s, int r) {
     suit = s;
     rank = r;
-}
-
-Card::Card(char byte) {
-    rank = byte >> 2 & 0b1111;
-    suit = byte & 0b11;
 }
 
 string Card::to_string() const {
@@ -121,4 +118,127 @@ void Card::display(int row, int col) {
     }
 }
 
-char Card::to_byte() const { return 0b10000000 | rank << 2 | suit; }
+istream &operator>>(istream &stream, Card &card) {
+    char suit = stream.get();
+    char rank = stream.get();
+
+    switch (suit) {
+    case 'C':
+        card.suit = 0;
+        break;
+    case 'D':
+        card.suit = 1;
+        break;
+    case 'H':
+        card.suit = 2;
+        break;
+    case 'S':
+        card.suit = 3;
+        break;
+    }
+
+    switch (rank) {
+    case 'A':
+        card.rank = 1;
+        break;
+    case '2':
+        card.rank = 2;
+        break;
+    case '3':
+        card.rank = 3;
+        break;
+    case '4':
+        card.rank = 4;
+        break;
+    case '5':
+        card.rank = 5;
+        break;
+    case '6':
+        card.rank = 6;
+        break;
+    case '7':
+        card.rank = 7;
+        break;
+    case '8':
+        card.rank = 8;
+        break;
+    case '9':
+        card.rank = 9;
+        break;
+    case 'T':
+        card.rank = 10;
+        break;
+    case 'J':
+        card.rank = 11;
+        break;
+    case 'Q':
+        card.rank = 12;
+        break;
+    case 'K':
+        card.rank = 13;
+        break;
+    }
+
+    return stream;
+}
+
+ostream &operator<<(ostream &stream, Card &card) {
+    switch (card.suit) {
+    case 0:
+        stream << 'C';
+        break;
+    case 1:
+        stream << 'D';
+        break;
+    case 2:
+        stream << 'H';
+        break;
+    case 3:
+        stream << 'S';
+        break;
+    }
+
+    switch (card.rank) {
+    case 1:
+        stream << 'A';
+        break;
+    case 2:
+        stream << '2';
+        break;
+    case 3:
+        stream << '3';
+        break;
+    case 4:
+        stream << '4';
+        break;
+    case 5:
+        stream << '5';
+        break;
+    case 6:
+        stream << '6';
+        break;
+    case 7:
+        stream << '7';
+        break;
+    case 8:
+        stream << '8';
+        break;
+    case 9:
+        stream << '9';
+        break;
+    case 10:
+        stream << 'T';
+        break;
+    case 11:
+        stream << 'J';
+        break;
+    case 12:
+        stream << 'Q';
+        break;
+    case 13:
+        stream << 'K';
+        break;
+    }
+
+    return stream;
+}

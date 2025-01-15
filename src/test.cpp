@@ -64,8 +64,12 @@ TEST_CASE("Test tcp socket and server" * doctest::skip(true)) {
 
 TEST_CASE("Test card serialization and deserialization") {
     Deck deck("deck");
+    stringstream stream;
+    Card parsed;
     for (auto card = deck.cards.begin(); card < deck.cards.end(); card++) {
-        CHECK(Card(card->to_byte()) == *card);
+        stream << *card;
+        stream >> parsed;
+        CHECK(parsed == *card);
     }
 }
 
