@@ -1,5 +1,6 @@
 #pragma once
 #include "Card.h"
+#include <istream>
 #include <string>
 #include <vector>
 using namespace std;
@@ -23,3 +24,6 @@ struct CardCollection {
     void deal_all(CardCollection &that);
     void display(int row, int col, int limit = -1, bool vertical = false);
 };
+
+istream &operator>>(istream &, CardCollection &);
+ostream &operator<<(ostream &, CardCollection &);

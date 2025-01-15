@@ -1,6 +1,8 @@
+#include "CardCollection.h"
 #include "Deck.h"
 #include <bitset>
 #include <iostream>
+#include <sstream>
 #include <thread>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
@@ -61,5 +63,19 @@ TEST_CASE("Test card serialization and deserialization") {
     Deck deck("deck");
     for (auto card = deck.cards.begin(); card < deck.cards.end(); card++) {
         CHECK(Card(card->to_byte()) == *card);
+    }
+}
+
+TEST_CASE("Test deck serialization and deserialization") {
+    Deck deck("deck");
+    deck.shuffle();
+    stringstream stream;
+    stream << deck;
+    CardCollection collection("output");
+    stream >> collection;
+
+    CHECK(deck.size() == collection.size());
+    for (int i = 0; i < deck.size(); i++) {
+        CHECK(deck.get_card(i) == collection.get_card(i));
     }
 }

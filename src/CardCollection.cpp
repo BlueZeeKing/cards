@@ -85,3 +85,11 @@ void CardCollection::display(int row, int col, int limit, bool vertical) {
         mvaddch(row, col - 1, '+');
     }
 }
+
+istream &operator>>(istream &stream, CardCollection &collection) {
+    return stream;
+}
+
+ostream &operator<<(ostream &stream, CardCollection &collection) {
+    return stream;
+}
