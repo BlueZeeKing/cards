@@ -1,14 +1,15 @@
 #include "Eights.h"
-#include "Hand.h"
 #include "Card.h"
+#include "Deck.h"
+#include "Hand.h"
 #include "Player.h"
 #include "ncursesw/ncurses.h"
 #include <sstream>
-#include "Deck.h"
 using namespace std;
 
-Eights::Eights() : one(Player("One", true)), two(Player("Two", false)), draw_pile(Hand("Draw Pile")), discard_pile(Hand("Discard Pile"))
-{
+Eights::Eights()
+    : one(Player("One", true)), two(Player("Two", false)),
+      draw_pile(Hand("Draw Pile")), discard_pile(Hand("Discard Pile")) {
     Deck deck = Deck("Deck");
     deck.shuffle();
 
@@ -23,29 +24,23 @@ Eights::Eights() : one(Player("One", true)), two(Player("Two", false)), draw_pil
     deck.deal_all(draw_pile);
 }
 
-bool Eights::is_done()
-{
-    return one.hand.is_empty() || two.hand.is_empty();
-}
+bool Eights::is_done() { return one.hand.is_empty() || two.hand.is_empty(); }
 
-void Eights::reshuffle()
-{
+void Eights::reshuffle() {
     Card prev = discard_pile.pop_card();
     discard_pile.deal_all(draw_pile);
     discard_pile.add_card(prev);
     draw_pile.shuffle();
 }
 
-Card Eights::draw_card()
-{
+Card Eights::draw_card() {
     if (draw_pile.is_empty()) {
         reshuffle();
     }
     return draw_pile.pop_card();
 }
 
-Player* Eights::next_player(const Player* current)
-{
+Player *Eights::next_player(const Player *current) {
     if (current == (&one)) {
         return &two;
     } else {
@@ -53,8 +48,7 @@ Player* Eights::next_player(const Player* current)
     }
 }
 
-void Eights::display_state()
-{
+void Eights::display_state() {
     clear();
 
     one.display();
@@ -71,16 +65,14 @@ void Eights::display_state()
     refresh();
 }
 
-void Eights::take_turn(Player* player)
-{
+void Eights::take_turn(Player *player) {
     Card prev = discard_pile.last_card();
     Card next = (*player).play(*this, prev);
     discard_pile.add_card(next);
 }
 
-void Eights::play_game()
-{
-    Player* player = &one;
+void Eights::play_game() {
+    Player *player = &one;
     // keep playing until there's a winner
     while (!is_done()) {
         display_state();

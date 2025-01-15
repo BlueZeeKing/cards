@@ -5,8 +5,7 @@ using namespace std;
 #define COLOR_CARD_RED 1
 #define COLOR_CARD_BLACK 2
 
-struct Card
-{
+struct Card {
     int suit, rank;
 
     // constructors
@@ -15,7 +14,7 @@ struct Card
 
     // member functions
     string to_string() const;
-    bool equals(const Card& c2) const;
-    bool is_greater(const Card& c2) const;
+    bool equals(const Card &c2) const;
+    bool is_greater(const Card &c2) const;
     void display(int row, int col);
 };

@@ -1,7 +1,6 @@
 #include "Hand.h"
-#include <string>
 #include <iostream>
+#include <string>
 using namespace std;
 
-Hand::Hand(string label) : CardCollection(label) {
-}
+Hand::Hand(string label) : CardCollection(label) {}

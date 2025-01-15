@@ -7,14 +7,14 @@
 
 #include "socket.h"
 
-class tcp_streambuffer: public std::streambuf {
+class tcp_streambuffer : public std::streambuf {
     int socketfd;
-    char* read_buffer;
+    char *read_buffer;
     int read_buffer_length;
-    char* write_buffer;
+    char *write_buffer;
     int write_buffer_length;
 
-    public:
+  public:
     tcp_streambuffer(int socketfd) {
         this->socketfd = socketfd;
         read_buffer_length = 2048;
@@ -39,7 +39,7 @@ class tcp_streambuffer: public std::streambuf {
         }
 
         setg(read_buffer, read_buffer, read_buffer + amount_read);
-        return read_buffer[0]; 
+        return read_buffer[0];
     }
 
     virtual int overflow(int c) {
@@ -64,7 +64,7 @@ class tcp_streambuffer: public std::streambuf {
         return 0;
     }
 
-    virtual std::streambuf* setbuf (char* s, std::streamsize n) {
+    virtual std::streambuf *setbuf(char *s, std::streamsize n) {
         sync();
         read_buffer_length = n;
         read_buffer = new char[read_buffer_length];
@@ -76,15 +76,16 @@ class tcp_streambuffer: public std::streambuf {
     }
 
     virtual ~tcp_streambuffer() {
-        delete[] read_buffer; 
-        delete[] write_buffer; 
+        delete[] read_buffer;
+        delete[] write_buffer;
         if (close(socketfd) == -1) {
-            std::cerr << "Failed to close socket: " << strerror(errno) << std::endl;
+            std::cerr << "Failed to close socket: " << strerror(errno)
+                      << std::endl;
         }
     }
 };
 
-int open_client_socket(const std::string& url, const std::string& port) {
+int open_client_socket(const std::string &url, const std::string &port) {
     struct addrinfo hints, *result;
 
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -112,8 +113,8 @@ int open_client_socket(const std::string& url, const std::string& port) {
     return socketfd;
 }
 
-tcp_stream::tcp_stream(int socketfd): std::iostream(new tcp_streambuffer(socketfd)) { };
-tcp_stream::tcp_stream(const std::string& url, const std::string& port): std::iostream(new tcp_streambuffer(open_client_socket(url, port))) { };
-tcp_stream::~tcp_stream() {
-    delete this->rdbuf();
-};
+tcp_stream::tcp_stream(int socketfd)
+    : std::iostream(new tcp_streambuffer(socketfd)) {};
+tcp_stream::tcp_stream(const std::string &url, const std::string &port)
+    : std::iostream(new tcp_streambuffer(open_client_socket(url, port))) {};
+tcp_stream::~tcp_stream() { delete this->rdbuf(); };

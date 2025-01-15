@@ -4,7 +4,7 @@
 #include "randomutils.h"
 using namespace std;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     init_random_seed();
 
     // Setup ncurses
@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
 
     init_pair(COLOR_CARD_RED, COLOR_WHITE, COLOR_RED);
     init_pair(COLOR_CARD_BLACK, COLOR_WHITE, COLOR_BLACK);
-    
+
     Eights game = Eights();
     game.play_game();
 

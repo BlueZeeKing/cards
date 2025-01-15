@@ -1,7 +1,7 @@
 #pragma once
-#include "Player.h"
-#include "Hand.h"
 #include "Card.h"
+#include "Hand.h"
+#include "Player.h"
 
 struct Eights {
     Player one;
@@ -15,8 +15,8 @@ struct Eights {
     bool is_done();
     void reshuffle();
     Card draw_card();
-    Player* next_player(const Player* current);
+    Player *next_player(const Player *current);
     void display_state();
-    void take_turn(Player* player);
+    void take_turn(Player *player);
     void play_game();
 };
