@@ -1,7 +1,10 @@
-#include "messages.h"
 #include <cassert>
 #include <iostream>
 #include <string>
+
+#include "messages.h"
+
+using namespace std;
 
 istream &operator>>(istream &stream, Message &message) {
     int index, length;
@@ -9,17 +12,17 @@ istream &operator>>(istream &stream, Message &message) {
     string line;
 
     getline(stream, line);
-    index = std::stoi(line);
+    index = stoi(line);
     switch (index) {
     case 0: {
         Hand hand("Mine");
         stream >> hand;
 
-        std::getline(stream, line);
+        getline(stream, line);
         length = stoi(line);
         vector<string> players;
         for (int i = 0; i < length; i++) {
-            std::getline(stream, line);
+            getline(stream, line);
             players.push_back(line);
         }
 
@@ -35,7 +38,7 @@ istream &operator>>(istream &stream, Message &message) {
         break;
     }
     case 1: {
-        std::getline(stream, line);
+        getline(stream, line);
         int idx = stoi(line);
         message = AddCard{
             .idx = idx,
@@ -43,7 +46,7 @@ istream &operator>>(istream &stream, Message &message) {
         break;
     }
     case 2: {
-        std::getline(stream, line);
+        getline(stream, line);
         int idx = stoi(line);
         Card card;
         stream >> card;
@@ -87,7 +90,7 @@ istream &operator>>(istream &stream, Message &message) {
     return stream;
 }
 
-ostream &operator<<(ostream &stream, Message &message) {
+ostream &operator<<(ostream &stream, const Message &message) {
     stream << (int)message.index() << '\n';
     switch (message.index()) {
     case 0: {

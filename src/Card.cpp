@@ -1,8 +1,9 @@
-#include "Card.h"
 #include "ncursesw/ncurses.h"
-#include <istream>
-#include <ostream>
+#include <iostream>
 #include <string>
+
+#include "Card.h"
+
 using namespace std;
 
 Card::Card() {
@@ -46,7 +47,7 @@ bool Card::is_greater(const Card &c2) const {
     return false;
 }
 
-void Card::display(int row, int col) {
+void Card::display(int row, int col) const {
     switch (suit) {
     case 0:
         color_set(COLOR_CARD_BLACK, nullptr);
@@ -182,7 +183,7 @@ istream &operator>>(istream &stream, Card &card) {
     return stream;
 }
 
-ostream &operator<<(ostream &stream, Card &card) {
+ostream &operator<<(ostream &stream, const Card &card) {
     switch (card.suit) {
     case 0:
         stream << 'C';

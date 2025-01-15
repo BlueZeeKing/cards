@@ -1,7 +1,9 @@
 #pragma once
-#include "CardCollection.h"
+
 #include <string>
 
+#include "CardCollection.h"
+
 struct Deck : CardCollection {
-    Deck(string label);
+    Deck(std::string label);
 };

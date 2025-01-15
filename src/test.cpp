@@ -1,15 +1,17 @@
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest/doctest.h"
+
+#include <iostream>
+#include <sstream>
+#include <thread>
+
 #include "CardCollection.h"
 #include "Deck.h"
 #include "Hand.h"
-#include "randomutils.h"
-#include <iostream>
-#include <istream>
-#include <sstream>
-#include <thread>
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest/doctest.h"
 #include "messages.h"
+#include "randomutils.h"
 #include "socket.h"
+
 using namespace std;
 
 const char *TEST_STRING =
@@ -21,18 +23,18 @@ TEST_CASE("Test tcp socket" * doctest::skip(true)) {
     stream.rdbuf()->pubsetbuf(nullptr, 10);
     stream << TEST_STRING << endl;
     string output;
-    std::getline(stream, output);
+    getline(stream, output);
     CHECK(output == TEST_STRING);
 }
 
 TEST_CASE("Test tcp socket and server" * doctest::skip(true)) {
-    std::thread server_thread([]() {
+    thread server_thread([]() {
         try {
             tcp_server server("127.0.0.1", "8678");
             tcp_stream stream = server.accept();
 
             string received;
-            std::getline(stream, received);
+            getline(stream, received);
             CHECK(received == "Client to server");
 
             stream << "Server to client" << endl;
@@ -42,15 +44,15 @@ TEST_CASE("Test tcp socket and server" * doctest::skip(true)) {
         }
     });
 
-    std::thread client_thread([]() {
+    thread client_thread([]() {
         try {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            this_thread::sleep_for(chrono::seconds(1));
             tcp_stream stream("127.0.0.1", "8678");
 
             stream << "Client to server" << endl;
 
             string received;
-            std::getline(stream, received);
+            getline(stream, received);
             CHECK(received == "Server to client");
         } catch (char *err) {
             cerr << "client error: " << err << endl;

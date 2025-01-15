@@ -1,6 +1,7 @@
 #pragma once
+
+#include <iostream>
 #include <string>
-using namespace std;
 
 #define COLOR_CARD_RED 1
 #define COLOR_CARD_BLACK 2
@@ -13,12 +14,12 @@ struct Card {
     Card(int s, int r);
 
     // member functions
-    string to_string() const;
+    std::string to_string() const;
     bool operator==(const Card &c2) const;
     bool operator!=(const Card &c2) const;
     bool is_greater(const Card &c2) const;
-    void display(int row, int col);
+    void display(int row, int col) const;
 };
 
-istream &operator>>(istream &, Card &);
-ostream &operator<<(ostream &, Card &);
+std::istream &operator>>(std::istream &, Card &);
+std::ostream &operator<<(std::ostream &, const Card &);

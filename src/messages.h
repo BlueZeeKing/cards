@@ -1,10 +1,13 @@
+#pragma once
+
+#include <iostream>
 #include <variant>
 
 #include "Hand.h"
 
 struct StartGame {
     Hand hand;
-    vector<string> player_order;
+    std::vector<std::string> player_order;
     Card discard;
 
     bool operator==(const StartGame &) const;
@@ -40,7 +43,7 @@ struct Play {
 };
 
 struct Join {
-    string name;
+    std::string name;
 
     bool operator==(const Join &) const;
 };
@@ -49,5 +52,5 @@ typedef std::variant<StartGame, AddCard, FinishTurn, Draw, DrawResult, Play,
                      Join>
     Message;
 
-istream &operator>>(istream &, Message &);
-ostream &operator<<(ostream &, Message &);
+std::istream &operator>>(std::istream &, Message &);
+std::ostream &operator<<(std::ostream &, const Message &);

@@ -1,10 +1,12 @@
-#include "Eights.h"
-#include "Card.h"
-#include "Deck.h"
-#include "Hand.h"
-#include "Player.h"
 #include "ncursesw/ncurses.h"
 #include <sstream>
+
+#include "Card.h"
+#include "Deck.h"
+#include "Eights.h"
+#include "Hand.h"
+#include "Player.h"
+
 using namespace std;
 
 Eights::Eights()

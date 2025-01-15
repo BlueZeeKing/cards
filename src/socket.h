@@ -1,4 +1,7 @@
+#pragma once
+
 #include <istream>
+#include <string>
 
 class tcp_stream : public std::iostream {
   public:

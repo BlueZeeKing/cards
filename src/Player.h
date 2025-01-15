@@ -1,18 +1,19 @@
 #pragma once
+
+#include <string>
+
 #include "Card.h"
 #include "Hand.h"
-#include <string>
-using namespace std;
 
 class Eights;
 
 struct Player {
-    string name;
+    std::string name;
     Hand hand;
     int cursor_idx;
     bool is_top;
 
-    Player(string name, bool is_top)
+    Player(std::string name, bool is_top)
         : name(name), hand(Hand(name)), cursor_idx(-1), is_top(is_top) {};
 
     Card play(Eights &eights, const Card &prev);

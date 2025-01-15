@@ -1,6 +1,8 @@
-#include "randomutils.h"
 #include <cstdlib>
 #include <ctime>
+
+#include "randomutils.h"
+
 using namespace std;
 
 void init_random_seed() { srand(time(NULL)); }

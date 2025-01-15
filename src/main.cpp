@@ -1,7 +1,9 @@
+#include "ncursesw/ncurses.h"
+
 #include "Card.h"
 #include "Eights.h"
-#include "ncursesw/ncurses.h"
 #include "randomutils.h"
+
 using namespace std;
 
 int main(int argc, char *argv[]) {

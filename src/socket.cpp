@@ -8,7 +8,9 @@
 
 #include "socket.h"
 
-class tcp_streambuffer : public std::streambuf {
+using namespace std;
+
+class tcp_streambuffer : public streambuf {
     int socketfd;
     char *read_buffer;
     int read_buffer_length;
@@ -65,7 +67,7 @@ class tcp_streambuffer : public std::streambuf {
         return 0;
     }
 
-    virtual std::streambuf *setbuf(char *s, std::streamsize n) {
+    virtual streambuf *setbuf(char *s, streamsize n) {
         sync();
         read_buffer_length = n;
         read_buffer = new char[read_buffer_length];
@@ -80,13 +82,12 @@ class tcp_streambuffer : public std::streambuf {
         delete[] read_buffer;
         delete[] write_buffer;
         if (close(socketfd) == -1) {
-            std::cerr << "Failed to close socket: " << strerror(errno)
-                      << std::endl;
+            cerr << "Failed to close socket: " << strerror(errno) << endl;
         }
     }
 };
 
-int open_client_socket(const std::string &url, const std::string &port) {
+int open_client_socket(const string &url, const string &port) {
     struct addrinfo hints, *result;
 
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -115,12 +116,12 @@ int open_client_socket(const std::string &url, const std::string &port) {
 }
 
 tcp_stream::tcp_stream(int socketfd)
-    : std::iostream(new tcp_streambuffer(socketfd)) {};
-tcp_stream::tcp_stream(const std::string &url, const std::string &port)
-    : std::iostream(new tcp_streambuffer(open_client_socket(url, port))) {};
+    : iostream(new tcp_streambuffer(socketfd)) {};
+tcp_stream::tcp_stream(const string &url, const string &port)
+    : iostream(new tcp_streambuffer(open_client_socket(url, port))) {};
 tcp_stream::~tcp_stream() { delete this->rdbuf(); };
 
-tcp_server::tcp_server(const std::string &url, const std::string &port) {
+tcp_server::tcp_server(const string &url, const string &port) {
     struct addrinfo hints, *result;
 
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -150,8 +151,7 @@ tcp_server::tcp_server(const std::string &url, const std::string &port) {
 
 tcp_server::~tcp_server() {
     if (close(socketfd) == -1) {
-        std::cerr << "Failed to close listener: " << strerror(errno)
-                  << std::endl;
+        cerr << "Failed to close listener: " << strerror(errno) << endl;
     }
 }
 

@@ -1,9 +1,12 @@
-#include "CardCollection.h"
 #include "ncursesw/ncurses.h"
-#include "randomutils.h"
 #include <iostream>
 #include <ostream>
 #include <string>
+
+#include "CardCollection.h"
+#include "randomutils.h"
+
+using namespace std;
 
 CardCollection::CardCollection(string label) {
     this->label = label;
@@ -25,9 +28,9 @@ Card CardCollection::pop_card(int i) {
     return toRemove;
 }
 
-bool CardCollection::is_empty() { return cards.empty(); }
+bool CardCollection::is_empty() const { return cards.empty(); }
 
-int CardCollection::size() { return cards.size(); }
+int CardCollection::size() const { return cards.size(); }
 
 Card &CardCollection::get_card(int i) { return cards[i]; }
 
@@ -58,7 +61,7 @@ void CardCollection::deal_all(CardCollection &that) {
     deal(that, n);
 }
 
-void CardCollection::display(int row, int col, int limit, bool vertical) {
+void CardCollection::display(int row, int col, int limit, bool vertical) const {
     bool limited = false;
 
     if (limit < 0) {
@@ -104,7 +107,7 @@ istream &operator>>(istream &stream, CardCollection &collection) {
     return stream;
 }
 
-ostream &operator<<(ostream &stream, CardCollection &collection) {
+ostream &operator<<(ostream &stream, const CardCollection &collection) {
     for (auto card = collection.cards.begin(); card < collection.cards.end();
          card++) {
         stream << *card;

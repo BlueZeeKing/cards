@@ -1,6 +1,8 @@
-#include "Deck.h"
-#include "Card.h"
 #include <string>
+
+#include "Card.h"
+#include "Deck.h"
+
 using namespace std;
 
 Deck::Deck(string label) : CardCollection(label) {
