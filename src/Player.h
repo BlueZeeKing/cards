@@ -1,25 +1,27 @@
 #pragma once
 
+#include <optional>
 #include <string>
 
 #include "Card.h"
-#include "Hand.h"
+#include "CardCollection.h"
+#include "channel.h"
+#include "messages.h"
 
 class Eights;
 
 struct Player {
     std::string name;
-    Hand hand;
-    int cursor_idx;
-    bool is_top;
+    channel<Message> sender;
+    channel<Message> receiver;
+    CardCollection hand;
+    Eights *eights;
 
-    Player(std::string name, bool is_top)
-        : name(name), hand(Hand(name)), cursor_idx(-1), is_top(is_top) {};
+    Player(std::string name, channel<Message> sender,
+           channel<Message> receiver);
 
-    Card play(Eights &eights, const Card &prev);
-    void draw_cursor(int new_idx);
-    Card search_for_match(const Card &prev);
-    Card draw_for_match(Eights &eights, const Card &prev);
-    bool card_matches(const Card &card1, const Card &card2);
-    void display();
+    std::optional<Card> play();
+    void start();
+    void add_card();
+    void player_finished();
 };

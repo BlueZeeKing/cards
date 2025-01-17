@@ -1,34 +1,45 @@
-#include "ncursesw/ncurses.h"
-#include <sstream>
+#include <optional>
+#include <vector>
 
 #include "Card.h"
 #include "Deck.h"
 #include "Eights.h"
-#include "Hand.h"
 #include "Player.h"
 
 using namespace std;
 
-Eights::Eights()
-    : one(Player("One", true)), two(Player("Two", false)),
-      draw_pile(Hand("Draw Pile")), discard_pile(Hand("Discard Pile")) {
+Eights::Eights(vector<Player> players)
+    : discard_pile("Discard pile"), draw_pile("Draw pile") {
     Deck deck = Deck("Deck");
     deck.shuffle();
 
     // deal starting cards to each player
-    deck.deal(one.hand, 5);
-    deck.deal(two.hand, 5);
+    for (auto player = players.begin(); player < players.end(); player++) {
+        deck.deal(player->hand, 5);
+        player->eights = this;
+    }
 
     // place top card in discard pile
     deck.deal(discard_pile, 1);
 
     // place remaining cards in draw pile
     deck.deal_all(draw_pile);
+
+    current_player = 0;
+    this->players = players;
 }
 
-bool Eights::is_done() { return one.hand.is_empty() || two.hand.is_empty(); }
+optional<Player> Eights::get_winner() {
+    for (auto player = players.begin(); player < players.end(); player++) {
+        if (player->hand.is_empty()) {
+            return optional<Player>(*player);
+        }
+    }
 
-void Eights::reshuffle() {
+    return optional<Player>();
+}
+
+void Eights::refill_draw_pile() {
     Card prev = discard_pile.pop_card();
     discard_pile.deal_all(draw_pile);
     discard_pile.add_card(prev);
@@ -37,51 +48,37 @@ void Eights::reshuffle() {
 
 Card Eights::draw_card() {
     if (draw_pile.is_empty()) {
-        reshuffle();
+        refill_draw_pile();
     }
     return draw_pile.pop_card();
 }
 
-Player *Eights::next_player(const Player *current) {
-    if (current == (&one)) {
-        return &two;
-    } else {
-        return &one;
-    }
+Player &Eights::next_player() {
+    Player &next_player = players[current_player];
+
+    current_player += 1;
+    current_player %= players.size();
+
+    return next_player;
 }
 
-void Eights::display_state() {
-    clear();
-
-    one.display();
-    two.display();
-
-    int center_row = getmaxy(stdscr) / 2;
-    int center_col = getmaxx(stdscr) / 2;
-    color_set(COLOR_CARD_BLACK, nullptr);
-    stringstream message;
-    message << "Draw pile: " << draw_pile.size() << " cards";
-    mvaddstr(center_row, center_col - 15, message.str().c_str());
-    discard_pile.last_card().display(center_row, center_col + 8);
-
-    refresh();
-}
-
-void Eights::take_turn(Player *player) {
-    Card prev = discard_pile.last_card();
-    Card next = (*player).play(*this, prev);
-    discard_pile.add_card(next);
-}
+Card Eights::current_top_card() { return discard_pile.last_card(); }
 
 void Eights::play_game() {
-    Player *player = &one;
-    // keep playing until there's a winner
-    while (!is_done()) {
-        display_state();
-        take_turn(player);
-        player = next_player(player);
+    for (auto player = players.begin(); player < players.end(); player++) {
+        player->start();
     }
-    // display the final score
-    /* one.display(); */
-    /* two.display(); */
+    while (!get_winner().has_value()) {
+        optional<Card> next_card = next_player().play();
+        if (next_card.has_value()) {
+            discard_pile.add_card(next_card.value());
+        } else {
+            break;
+        }
+    }
+}
+
+bool card_matches(const Card &card1, const Card &card2) {
+    return card1.suit == card2.suit || card1.rank == card2.rank ||
+           card1.rank == 8;
 }

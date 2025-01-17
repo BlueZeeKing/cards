@@ -1,3 +1,4 @@
+#include "Eights.h"
 #include "channel.h"
 #include <chrono>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
@@ -9,7 +10,6 @@
 
 #include "CardCollection.h"
 #include "Deck.h"
-#include "Hand.h"
 #include "messages.h"
 #include "randomutils.h"
 #include "socket.h"
@@ -99,24 +99,20 @@ void test_message(Message message, iostream &stream) {
 
 void test_all_messages(iostream &stream) {
     Deck deck("deck");
-    Hand hand("hand");
-    deck.deal(hand, 10);
+    CardCollection cards("hand");
+    deck.deal(cards, 10);
     vector<string> player_order = {"first", "second", "third"};
 
-    test_message(StartGame{.hand = hand,
+    test_message(StartGame{.hand = cards,
                            .player_order = player_order,
                            .discard = Card()},
                  stream);
-    test_message(
-        AddCard{
-            .idx = 42,
-        },
-        stream);
-    test_message(FinishTurn{.idx = 4242, .new_discard = Card(1, 1)}, stream);
+    test_message(FinishTurn{.new_discard = Card(1, 1)}, stream);
     test_message(Draw{}, stream);
     test_message(DrawResult{.card = Card(2, 4)}, stream);
-    test_message(Play{.card = Card(1, 10)}, stream);
+    test_message(Play{.hand_idx = 2}, stream);
     test_message(Join{.name = "hello, world"}, stream);
+    test_message(End{}, stream);
 }
 
 TEST_CASE("Test message serialization and deserialization") {
@@ -128,6 +124,43 @@ TEST_CASE("Test message serialization and deserialization over network" *
           doctest::skip(true)) {
     tcp_stream stream("tcpbin.com", "4242");
     test_all_messages(stream);
+}
+
+TEST_CASE("Test server") {
+    channel<Message> one_sender;
+    channel<Message> one_receiver;
+    channel<Message> two_sender;
+    channel<Message> two_receiver;
+
+    thread player_one_thread([one_sender, one_receiver]() mutable {
+        Message msg = one_sender.recv();
+        CHECK(msg.index() == 0);
+        StartGame msg_inner = get<StartGame>(msg);
+        CHECK(msg_inner.player_order[0] == "one");
+        CHECK(msg_inner.player_order[1] == "two");
+        CHECK(msg_inner.hand.size() == 5);
+        one_receiver.send(End{});
+    });
+
+    thread player_two_thread([two_sender, two_receiver]() mutable {
+        Message msg = two_sender.recv();
+        CHECK(msg.index() == 0);
+        StartGame msg_inner = get<StartGame>(msg);
+        CHECK(msg_inner.player_order[0] == "one");
+        CHECK(msg_inner.player_order[1] == "two");
+        CHECK(msg_inner.hand.size() == 5);
+    });
+
+    vector<Player> players;
+    players.push_back(Player("one", one_sender, one_receiver));
+    players.push_back(Player("two", two_sender, two_receiver));
+
+    Eights eights(players);
+
+    eights.play_game();
+
+    player_one_thread.join();
+    player_two_thread.join();
 }
 
 TEST_CASE("channel") {

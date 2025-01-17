@@ -3,24 +3,17 @@
 #include <iostream>
 #include <variant>
 
-#include "Hand.h"
+#include "CardCollection.h"
 
 struct StartGame {
-    Hand hand;
+    CardCollection hand;
     std::vector<std::string> player_order;
     Card discard;
 
     bool operator==(const StartGame &) const;
 };
 
-struct AddCard {
-    int idx;
-
-    bool operator==(const AddCard &) const;
-};
-
 struct FinishTurn {
-    int idx;
     Card new_discard;
 
     bool operator==(const FinishTurn &) const;
@@ -37,7 +30,7 @@ struct DrawResult {
 };
 
 struct Play {
-    Card card;
+    int hand_idx;
 
     bool operator==(const Play &) const;
 };
@@ -48,8 +41,11 @@ struct Join {
     bool operator==(const Join &) const;
 };
 
-typedef std::variant<StartGame, AddCard, FinishTurn, Draw, DrawResult, Play,
-                     Join>
+struct End {
+    bool operator==(const End &) const;
+};
+
+typedef std::variant<StartGame, FinishTurn, Draw, DrawResult, Play, Join, End>
     Message;
 
 std::istream &operator>>(std::istream &, Message &);

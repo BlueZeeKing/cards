@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 
+#include "CardCollection.h"
 #include "messages.h"
 
 using namespace std;
@@ -15,7 +16,7 @@ istream &operator>>(istream &stream, Message &message) {
     index = stoi(line);
     switch (index) {
     case 0: {
-        Hand hand("Mine");
+        CardCollection hand("Hand");
         stream >> hand;
 
         getline(stream, line);
@@ -38,29 +39,18 @@ istream &operator>>(istream &stream, Message &message) {
         break;
     }
     case 1: {
-        getline(stream, line);
-        int idx = stoi(line);
-        message = AddCard{
-            .idx = idx,
-        };
-        break;
-    }
-    case 2: {
-        getline(stream, line);
-        int idx = stoi(line);
         Card card;
         stream >> card;
         assert(stream.get() == '\n');
         message = FinishTurn{
-            .idx = idx,
             .new_discard = card,
         };
         break;
     }
-    case 3:
+    case 2:
         message = Draw{};
         break;
-    case 4: {
+    case 3: {
         Card card;
         stream >> card;
         assert(stream.get() == '\n');
@@ -69,22 +59,24 @@ istream &operator>>(istream &stream, Message &message) {
         };
         break;
     }
-    case 5: {
-        Card card;
-        stream >> card;
-        assert(stream.get() == '\n');
+    case 4: {
+        getline(stream, line);
+        int idx = stoi(line);
         message = Play{
-            .card = card,
+            .hand_idx = idx,
         };
         break;
     }
-    case 6: {
+    case 5: {
         getline(stream, line);
         message = Join{
             .name = line,
         };
         break;
     }
+    case 6:
+        message = End{};
+        break;
     }
 
     return stream;
@@ -108,33 +100,29 @@ ostream &operator<<(ostream &stream, const Message &message) {
         break;
     }
     case 1: {
-        AddCard inner = get<AddCard>(message);
-        stream << inner.idx << '\n';
-        break;
-    }
-    case 2: {
         FinishTurn inner = get<FinishTurn>(message);
-        stream << inner.idx << '\n';
         stream << inner.new_discard << '\n';
         break;
     }
-    case 3:
+    case 2:
         break;
-    case 4: {
+    case 3: {
         DrawResult inner = get<DrawResult>(message);
         stream << inner.card << '\n';
         break;
     }
-    case 5: {
+    case 4: {
         Play inner = get<Play>(message);
-        stream << inner.card << '\n';
+        stream << inner.hand_idx << '\n';
         break;
     }
-    case 6: {
+    case 5: {
         Join inner = get<Join>(message);
         stream << inner.name << '\n';
         break;
     }
+    case 6:
+        break;
     }
 
     return stream;
@@ -145,12 +133,8 @@ bool StartGame::operator==(const StartGame &other) const {
            other.player_order == player_order;
 }
 
-bool AddCard::operator==(const AddCard &other) const {
-    return other.idx == idx;
-}
-
 bool FinishTurn::operator==(const FinishTurn &other) const {
-    return other.idx == idx && other.new_discard == new_discard;
+    return other.new_discard == new_discard;
 }
 
 bool Draw::operator==(const Draw &other) const { return true; }
@@ -159,6 +143,10 @@ bool DrawResult::operator==(const DrawResult &other) const {
     return other.card == card;
 }
 
-bool Play::operator==(const Play &other) const { return other.card == card; }
+bool Play::operator==(const Play &other) const {
+    return other.hand_idx == hand_idx;
+}
 
 bool Join::operator==(const Join &other) const { return other.name == name; }
+
+bool End::operator==(const End &other) const { return true; }

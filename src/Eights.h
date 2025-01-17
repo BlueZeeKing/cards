@@ -1,23 +1,26 @@
 #pragma once
 
+#include <optional>
+
 #include "Card.h"
-#include "Hand.h"
+#include "CardCollection.h"
 #include "Player.h"
 
 struct Eights {
-    Player one;
-    Player two;
-    Hand draw_pile;
-    Hand discard_pile;
+    std::vector<Player> players;
+    CardCollection draw_pile;
+    CardCollection discard_pile;
+    int current_player;
 
     // make a new eights game with default settings
-    Eights();
+    Eights(std::vector<Player>);
 
-    bool is_done();
-    void reshuffle();
+    std::optional<Player> get_winner();
+    void refill_draw_pile();
+    Player &next_player();
     Card draw_card();
-    Player *next_player(const Player *current);
-    void display_state();
-    void take_turn(Player *player);
+    Card current_top_card();
     void play_game();
 };
+
+bool card_matches(const Card &card1, const Card &card2);
