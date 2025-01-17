@@ -1,3 +1,4 @@
+#include "channel.h"
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
 
@@ -126,4 +127,20 @@ TEST_CASE("Test message serialization and deserialization over network" *
           doctest::skip(true)) {
     tcp_stream stream("tcpbin.com", "4242");
     test_all_messages(stream);
+}
+
+TEST_CASE("channel") {
+    channel<int> sender;
+    channel<int> receiver(sender);
+
+    thread receiver_thread(
+        [receiver]() mutable { CHECK(receiver.recv() == 42); });
+
+    thread sender_thread([sender]() mutable {
+        this_thread::sleep_for(chrono::seconds(1));
+        sender.send(42);
+    });
+
+    sender_thread.join();
+    receiver_thread.join();
 }
