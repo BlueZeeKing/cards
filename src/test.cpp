@@ -1,4 +1,5 @@
 #include "channel.h"
+#include <chrono>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
 
@@ -137,7 +138,7 @@ TEST_CASE("channel") {
         [receiver]() mutable { CHECK(receiver.recv() == 42); });
 
     thread sender_thread([sender]() mutable {
-        this_thread::sleep_for(chrono::seconds(1));
+        this_thread::sleep_for(chrono::milliseconds(50));
         sender.send(42);
     });
 
