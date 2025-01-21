@@ -16,7 +16,6 @@ Eights::Eights(vector<Player> players)
     // deal starting cards to each player
     for (auto player = players.begin(); player < players.end(); player++) {
         deck.deal(player->hand, 5);
-        player->eights = this;
     }
 
     // place top card in discard pile
@@ -46,9 +45,15 @@ void Eights::refill_draw_pile() {
     draw_pile.shuffle();
 }
 
-Card Eights::draw_card() {
+Card Eights::draw_card(const Player &drawer) {
     if (draw_pile.is_empty()) {
         refill_draw_pile();
+    }
+    for (auto player = players.begin(); player < players.end(); player++) {
+        if (drawer.name == player->name) {
+            continue;
+        }
+        player->add_card();
     }
     return draw_pile.pop_card();
 }
@@ -65,12 +70,22 @@ Player &Eights::next_player() {
 Card Eights::current_top_card() { return discard_pile.last_card(); }
 
 void Eights::play_game() {
+    vector<string> player_names;
     for (auto player = players.begin(); player < players.end(); player++) {
-        player->start();
+        player_names.push_back(player->name);
     }
+
+    for (auto player = players.begin(); player < players.end(); player++) {
+        player->start(player_names, current_top_card());
+    }
+
     while (!get_winner().has_value()) {
-        optional<Card> next_card = next_player().play();
+        optional<Card> next_card = next_player().play(*this);
         if (next_card.has_value()) {
+            for (auto player = players.begin(); player < players.end();
+                 player++) {
+                player->player_finished(next_card.value());
+            }
             discard_pile.add_card(next_card.value());
         } else {
             break;

@@ -15,13 +15,12 @@ struct Player {
     channel<Message> sender;
     channel<Message> receiver;
     CardCollection hand;
-    Eights *eights;
 
     Player(std::string name, channel<Message> sender,
            channel<Message> receiver);
 
-    std::optional<Card> play();
-    void start();
+    std::optional<Card> play(Eights &);
+    void start(const std::vector<std::string> &players, const Card &discard);
     void add_card();
-    void player_finished();
+    void player_finished(const Card &discard);
 };

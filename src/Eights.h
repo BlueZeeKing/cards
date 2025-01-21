@@ -18,7 +18,7 @@ struct Eights {
     std::optional<Player> get_winner();
     void refill_draw_pile();
     Player &next_player();
-    Card draw_card();
+    Card draw_card(const Player &drawer);
     Card current_top_card();
     void play_game();
 };

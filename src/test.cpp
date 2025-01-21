@@ -139,6 +139,13 @@ TEST_CASE("Test server") {
         CHECK(msg_inner.player_order[0] == "one");
         CHECK(msg_inner.player_order[1] == "two");
         CHECK(msg_inner.hand.size() == 5);
+
+        one_receiver.send(Draw{});
+
+        msg = one_sender.recv();
+        CHECK(msg.index() == 3);
+        DrawResult msg_inner2 = get<DrawResult>(msg);
+
         one_receiver.send(End{});
     });
 
@@ -149,6 +156,10 @@ TEST_CASE("Test server") {
         CHECK(msg_inner.player_order[0] == "one");
         CHECK(msg_inner.player_order[1] == "two");
         CHECK(msg_inner.hand.size() == 5);
+
+        msg = two_sender.recv();
+        CHECK(msg.index() == 2);
+        Draw msg_inner2 = get<Draw>(msg);
     });
 
     vector<Player> players;
