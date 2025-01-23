@@ -1,9 +1,11 @@
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 #include <deque>
 #include <memory>
 #include <mutex>
+#include <optional>
 
 template <typename T> class channel {
     std::shared_ptr<std::mutex> lock;
@@ -22,6 +24,22 @@ template <typename T> class channel {
         if (buffer->size() == 0) {
             waker->wait(guard, [this]() { return buffer->size() != 0; });
         }
+        T front = buffer->front();
+        buffer->pop_front();
+        return front;
+    }
+
+    std::optional<T> recv_with_timeout(int millis) {
+        std::unique_lock<std::mutex> guard(*lock);
+        if (buffer->size() == 0) {
+            waker->wait_for(guard, std::chrono::milliseconds(millis),
+                            [this]() { return buffer->size() != 0; });
+        }
+
+        if (buffer->size() == 0) {
+            return std::optional<T>();
+        }
+
         T front = buffer->front();
         buffer->pop_front();
         return front;

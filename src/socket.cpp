@@ -1,6 +1,7 @@
 #include <cerrno>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <netdb.h>
 #include <streambuf>
 #include <sys/socket.h>
@@ -11,15 +12,15 @@
 using namespace std;
 
 class tcp_streambuffer : public streambuf {
-    int socketfd;
     char *read_buffer;
     int read_buffer_length;
     char *write_buffer;
     int write_buffer_length;
 
   public:
-    tcp_streambuffer(int socketfd) {
-        this->socketfd = socketfd;
+    socketfd fd;
+
+    tcp_streambuffer(socketfd fd) : fd(fd) {
         read_buffer_length = 2048;
         read_buffer = new char[read_buffer_length];
         write_buffer_length = 2048;
@@ -28,8 +29,10 @@ class tcp_streambuffer : public streambuf {
         setp(write_buffer, write_buffer + write_buffer_length);
     }
 
+    tcp_streambuffer(int fd) : tcp_streambuffer(socketfd(fd)) {}
+
     virtual int underflow() {
-        int amount_read = recv(socketfd, read_buffer, read_buffer_length, 0);
+        int amount_read = recv(*fd.fd, read_buffer, read_buffer_length, 0);
 
         if (amount_read < 0) {
             setg(read_buffer, read_buffer, read_buffer);
@@ -57,7 +60,7 @@ class tcp_streambuffer : public streambuf {
 
     virtual int sync() {
         int amount_to_write = pptr() - pbase();
-        int amount_written = send(socketfd, write_buffer, amount_to_write, 0);
+        int amount_written = send(*fd.fd, write_buffer, amount_to_write, 0);
         if (amount_written != amount_to_write) {
             throw strerror(errno);
         }
@@ -81,9 +84,6 @@ class tcp_streambuffer : public streambuf {
     virtual ~tcp_streambuffer() {
         delete[] read_buffer;
         delete[] write_buffer;
-        if (close(socketfd) == -1) {
-            cerr << "Failed to close socket: " << strerror(errno) << endl;
-        }
     }
 };
 
@@ -120,8 +120,11 @@ tcp_stream::tcp_stream(int socketfd)
 tcp_stream::tcp_stream(const string &url, const string &port)
     : iostream(new tcp_streambuffer(open_client_socket(url, port))) {};
 tcp_stream::~tcp_stream() { delete this->rdbuf(); };
+tcp_stream::tcp_stream(const tcp_stream &other)
+    : iostream(new tcp_streambuffer(
+          dynamic_cast<tcp_streambuffer *>(other.rdbuf())->fd)) {};
 
-tcp_server::tcp_server(const string &url, const string &port) {
+int get_raw_fd(const string &url, const string &port) {
     struct addrinfo hints, *result;
 
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -134,31 +137,37 @@ tcp_server::tcp_server(const string &url, const string &port) {
         throw strerror(err);
     }
 
-    socketfd = socket(result->ai_family, result->ai_socktype, 0);
-    if (socketfd == -1) {
+    int raw_fd = socket(result->ai_family, result->ai_socktype, 0);
+    if (raw_fd == -1) {
         throw strerror(errno);
     }
 
-    err = bind(socketfd, result->ai_addr, result->ai_addrlen);
+    err = bind(raw_fd, result->ai_addr, result->ai_addrlen);
     if (err == -1) {
         throw strerror(errno);
     }
 
     freeaddrinfo(result);
 
-    listen(socketfd, 5);
+    listen(raw_fd, 5);
+
+    return raw_fd;
 }
 
-tcp_server::~tcp_server() {
-    if (close(socketfd) == -1) {
-        cerr << "Failed to close listener: " << strerror(errno) << endl;
-    }
-}
+tcp_server::tcp_server(const string &url, const string &port)
+    : fd(get_raw_fd(url, port)) {}
 
 tcp_stream tcp_server::accept() {
-    int new_socketfd = ::accept(socketfd, nullptr, nullptr);
+    int new_socketfd = ::accept(*fd.fd, nullptr, nullptr);
     if (new_socketfd == -1) {
         throw strerror(errno);
     }
     return tcp_stream(new_socketfd);
 }
+
+socketfd::socketfd(int fd)
+    : fd(new int(fd), [](int *fd) {
+          if (close(*fd) == -1) {
+              cerr << "Failed to close socket: " << strerror(errno) << endl;
+          }
+      }) {}

@@ -1,7 +1,7 @@
 CC=g++
 STD=c++17
 
-build/main: build/main.o build/Deck.o build/Card.o build/Player.o build/Eights.o build/randomutils.o build/CardCollection.o build/socket.o
+build/main: build/main.o build/socket.o build/Card.o build/Deck.o build/CardCollection.o build/randomutils.o build/messages.o build/Eights.o build/Player.o build/network.o build/client.o
 	$(CC) -g -O0 -o $@ $^ -std=$(STD) -lncursesw 
 
 build/test: build/test.o build/socket.o build/Card.o build/Deck.o build/CardCollection.o build/randomutils.o build/messages.o build/Eights.o build/Player.o

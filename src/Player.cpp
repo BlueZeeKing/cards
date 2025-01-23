@@ -24,7 +24,9 @@ optional<Card> Player::play(Eights &eights) {
 
             return played;
         } else if (message.index() == 2) {
-            sender.send(Message(DrawResult{.card = eights.draw_card(*this)}));
+            Card result = eights.draw_card(*this);
+            hand.add_card(result);
+            sender.send(Message(DrawResult{.card = result}));
         } else if (message.index() == 6) {
             return optional<Card>();
         } else {
