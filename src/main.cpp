@@ -179,5 +179,7 @@ int main(int argc, char *argv[]) {
     } catch (const char *error) {
         endwin();
         cerr << error << endl;
+    } catch (...) {
+        endwin();
     }
 }

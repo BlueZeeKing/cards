@@ -3,7 +3,6 @@
 #include "channel.h"
 #include "messages.h"
 #include "socket.h"
-#include <memory>
 #include <thread>
 #include <utility>
 
@@ -16,8 +15,18 @@ pair<channel<Message>, channel<Message>> create_channels(tcp_stream stream) {
     std::thread([=]() mutable {
         Message msg = Draw{};
         while (true) {
-            stream >> msg;
+            try {
+                stream >> msg;
+            } catch (int err) {
+                receiver.send(Error{.num = err});
+                break;
+            }
+
             receiver.send(msg);
+
+            if (msg.index() == 6) {
+                break;
+            }
         }
     }).detach();
 
@@ -25,8 +34,18 @@ pair<channel<Message>, channel<Message>> create_channels(tcp_stream stream) {
         Message msg = Draw{};
         while (true) {
             msg = sender.recv();
-            stream << msg;
-            stream.sync();
+
+            try {
+                stream << msg;
+                stream.sync();
+            } catch (int err) {
+                receiver.send(Error{.num = err});
+                break;
+            }
+
+            if (msg.index() == 6) {
+                break;
+            }
         }
     }).detach();
 

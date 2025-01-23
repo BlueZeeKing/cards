@@ -11,81 +11,71 @@
 
 using namespace std;
 
-class tcp_streambuffer : public streambuf {
-    char *read_buffer;
-    int read_buffer_length;
-    char *write_buffer;
-    int write_buffer_length;
+tcp_streambuffer::tcp_streambuffer(socketfd fd) : fd(fd) {
+    read_buffer_length = 2048;
+    read_buffer = new char[read_buffer_length];
+    write_buffer_length = 2048;
+    write_buffer = new char[write_buffer_length];
+    setg(read_buffer, read_buffer, read_buffer);
+    setp(write_buffer, write_buffer + write_buffer_length);
+}
 
-  public:
-    socketfd fd;
+tcp_streambuffer::tcp_streambuffer(int fd) : tcp_streambuffer(socketfd(fd)) {}
 
-    tcp_streambuffer(socketfd fd) : fd(fd) {
-        read_buffer_length = 2048;
-        read_buffer = new char[read_buffer_length];
-        write_buffer_length = 2048;
-        write_buffer = new char[write_buffer_length];
+int tcp_streambuffer::underflow() {
+    int amount_read = recv(*fd.fd, read_buffer, read_buffer_length, 0);
+
+    if (amount_read < 0) {
         setg(read_buffer, read_buffer, read_buffer);
-        setp(write_buffer, write_buffer + write_buffer_length);
+        throw errno;
     }
 
-    tcp_streambuffer(int fd) : tcp_streambuffer(socketfd(fd)) {}
-
-    virtual int underflow() {
-        int amount_read = recv(*fd.fd, read_buffer, read_buffer_length, 0);
-
-        if (amount_read < 0) {
-            setg(read_buffer, read_buffer, read_buffer);
-            throw strerror(errno);
-        }
-
-        if (amount_read == 0) {
-            setg(read_buffer, read_buffer, read_buffer);
-            return EOF;
-        }
-
-        setg(read_buffer, read_buffer, read_buffer + amount_read);
-        return read_buffer[0];
-    }
-
-    virtual int overflow(int c) {
-        sync();
-
-        if (c != EOF) {
-            sputc(c);
-        }
-
-        return c;
-    }
-
-    virtual int sync() {
-        int amount_to_write = pptr() - pbase();
-        int amount_written = send(*fd.fd, write_buffer, amount_to_write, 0);
-        if (amount_written != amount_to_write) {
-            throw strerror(errno);
-        }
-
-        setp(write_buffer, write_buffer + write_buffer_length);
-
-        return 0;
-    }
-
-    virtual streambuf *setbuf(char *s, streamsize n) {
-        sync();
-        read_buffer_length = n;
-        read_buffer = new char[read_buffer_length];
-        write_buffer_length = n;
-        write_buffer = new char[write_buffer_length];
+    if (amount_read == 0) {
         setg(read_buffer, read_buffer, read_buffer);
-        setp(write_buffer, write_buffer + write_buffer_length);
-        return this;
+        return EOF;
     }
 
-    virtual ~tcp_streambuffer() {
-        delete[] read_buffer;
-        delete[] write_buffer;
+    setg(read_buffer, read_buffer, read_buffer + amount_read);
+    return read_buffer[0];
+}
+
+int tcp_streambuffer::overflow(int c) {
+    sync();
+
+    if (c != EOF) {
+        sputc(c);
     }
-};
+
+    return c;
+}
+
+int tcp_streambuffer::sync() {
+    int amount_to_write = pptr() - pbase();
+    int amount_written = send(*fd.fd, write_buffer, amount_to_write, 0);
+    if (amount_written != amount_to_write) {
+        throw errno;
+    }
+
+    setp(write_buffer, write_buffer + write_buffer_length);
+
+    return 0;
+}
+
+streambuf *tcp_streambuffer::setbuf(char *s, streamsize n) {
+    sync();
+    read_buffer_length = n;
+    read_buffer = new char[read_buffer_length];
+    write_buffer_length = n;
+    write_buffer = new char[write_buffer_length];
+    setg(read_buffer, read_buffer, read_buffer);
+    setp(write_buffer, write_buffer + write_buffer_length);
+    return this;
+}
+
+tcp_streambuffer::~tcp_streambuffer() {
+    delete[] read_buffer;
+    delete[] write_buffer;
+}
 
 int open_client_socket(const string &url, const string &port) {
     struct addrinfo hints, *result;
@@ -163,6 +153,12 @@ tcp_stream tcp_server::accept() {
         throw strerror(errno);
     }
     return tcp_stream(new_socketfd);
+}
+
+void socketfd::force_close() {
+    if (close(*fd) == -1) {
+        throw errno;
+    }
 }
 
 socketfd::socketfd(int fd)

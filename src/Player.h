@@ -23,4 +23,5 @@ struct Player {
     void start(const std::vector<std::string> &players, const Card &discard);
     void add_card();
     void player_finished(const Card &discard);
+    void end();
 };

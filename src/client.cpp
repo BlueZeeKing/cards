@@ -66,6 +66,9 @@ void client::play() {
             render();
             refresh();
             break;
+        case 6:
+        case 7:
+            break;
         }
     }
 }

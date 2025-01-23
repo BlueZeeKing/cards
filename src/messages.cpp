@@ -150,3 +150,5 @@ bool Play::operator==(const Play &other) const {
 bool Join::operator==(const Join &other) const { return other.name == name; }
 
 bool End::operator==(const End &other) const { return true; }
+
+bool Error::operator==(const Error &other) const { return true; }

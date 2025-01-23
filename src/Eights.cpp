@@ -91,6 +91,10 @@ void Eights::play_game() {
             break;
         }
     }
+
+    for (auto player = players.begin(); player < players.end(); player++) {
+        player->end();
+    }
 }
 
 bool card_matches(const Card &card1, const Card &card2) {

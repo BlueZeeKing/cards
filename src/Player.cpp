@@ -48,3 +48,5 @@ void Player::start(const vector<string> &players, const Card &discard) {
         .discard = discard,
     }));
 }
+
+void Player::end() { sender.send(Message(End{})); }

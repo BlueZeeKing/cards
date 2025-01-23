@@ -45,7 +45,14 @@ struct End {
     bool operator==(const End &) const;
 };
 
-typedef std::variant<StartGame, FinishTurn, Draw, DrawResult, Play, Join, End>
+struct Error {
+    int num;
+
+    bool operator==(const Error &) const;
+};
+
+typedef std::variant<StartGame, FinishTurn, Draw, DrawResult, Play, Join, End,
+                     Error>
     Message;
 
 std::istream &operator>>(std::istream &, Message &);
